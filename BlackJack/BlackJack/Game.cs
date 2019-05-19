@@ -64,10 +64,11 @@ namespace BlackJack
         {
             Console.Clear();
             string output = String.Empty;
+            string separator = "------------------------------------------------\r\n";
 
-            output += "##############################################\r\n";
-            output += "############## -= Black Jack =- ##############\r\n";
-            output += "##############################################\r\n";
+            output += "################################################\r\n";
+            output += "############### -= Black Jack =- ###############\r\n";
+            output += "################################################\r\n";
             output += Environment.NewLine;
 
             if (option == UpdateScreenOptions.EndOfRound)
@@ -95,14 +96,14 @@ namespace BlackJack
             {
                 output += Environment.NewLine;
                 output += Environment.NewLine;
-                output += "----------------------------------------------\r\n";
+                output += separator;
                 output += Environment.NewLine;
                 output += $"{player.Print(option)}";
             }
 
             output += Environment.NewLine;
             output += Environment.NewLine;
-            output += "----------------------------------------------\r\n";
+            output += separator;
             output += Environment.NewLine;
             output += Environment.NewLine;
 
@@ -221,14 +222,10 @@ namespace BlackJack
             return false;
         }
 
-
         private Deck GetNewDeck()
         {
             return new Deck(random);
         }
-
-
-
 
         public void GetWinner()
         {
@@ -261,7 +258,6 @@ namespace BlackJack
             }
         }
 
-        
         public void UpdateStockIfNeeded()
         {
             if (stock.Cards.Count < 10)

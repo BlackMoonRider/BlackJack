@@ -9,8 +9,6 @@ namespace BlackJack
     class Deck
     {
         public List<Card> Cards;
-        public bool DeckRunsOut = false;
-        private int deckRunsOutLimit = 13;
 
         public Deck(Random random)
         {
@@ -42,7 +40,6 @@ namespace BlackJack
         {
             Card returnCard = Cards[0];
             Cards.RemoveAt(0);
-            DeckRunsOut = Cards.Count < deckRunsOutLimit ? true : false;
             return returnCard;
         }
     }

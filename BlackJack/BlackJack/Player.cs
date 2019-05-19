@@ -18,7 +18,6 @@ namespace BlackJack
         private int handLimit = 5;
 
         public int Score { get; set; } = 0;
-        // public bool IsShowdown { get; set; }
         public bool Ready = false;
         public bool IsAnotherCardNeeded { get; private set; }
         public void MakeDecision()
@@ -31,7 +30,6 @@ namespace BlackJack
             if (!IsAnotherCardNeeded)
                 Ready = true;
         }
-        public void Unlock() => Ready = false;
         public int Points
         {
             get
@@ -69,7 +67,7 @@ namespace BlackJack
 
             if (Type == PlayerType.User || Type == PlayerType.Computer && (option == UpdateScreenOptions.EndOfRound))
             {
-                output += $"{Name} has {Points} points:\r\n";
+                output += $"{Name} has {Points} points:\r\n\r\n";
                 foreach (Card card in Hand)
                 {
                     output += $"\t{card}\r\n";
@@ -77,7 +75,7 @@ namespace BlackJack
             }
             if (Type == PlayerType.Computer && option == UpdateScreenOptions.InGame)
             {
-                output += $"{Name} has {Hand.Count} cards:\r\n";
+                output += $"{Name} has {Hand.Count} cards:\r\n\r\n";
                 foreach (Card card in Hand)
                 {
                     output += $"\t##### of #####\r\n";
@@ -85,7 +83,7 @@ namespace BlackJack
             }
 
             // Debug purposes
-            output += IsAnotherCardNeeded ? "I need another card." : "That's enough";
+            // output += IsAnotherCardNeeded ? "I need another card." : "That's enough";
 
             return output;
         }
