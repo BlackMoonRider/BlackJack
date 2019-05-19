@@ -63,11 +63,11 @@ namespace BlackJack
             }
         }
 
-        public override string ToString()
+        public string Print(bool open = false)
         {
             string output = String.Empty;
 
-            if (Type == PlayerType.User || Type == PlayerType.Computer && IsAnotherCardNeeded == false)
+            if (Type == PlayerType.User || Type == PlayerType.Computer && open)
             {
                 output += $"{Name} has {Points} points:\r\n";
                 foreach (Card card in Hand)
@@ -75,7 +75,7 @@ namespace BlackJack
                     output += $"\t{card}\r\n";
                 }
             }
-            if (Type == PlayerType.Computer && IsAnotherCardNeeded == true)
+            if (Type == PlayerType.Computer && !open)
             {
                 output += $"{Name} has {Hand.Count} cards:\r\n";
                 foreach (Card card in Hand)

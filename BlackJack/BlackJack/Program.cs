@@ -16,11 +16,18 @@ namespace BlackJack
 
             while (true)
             {
+                //game.PrintRoundNumber();
+                //Console.ReadKey();
+
                 game.MakeComputerDecision();
                 game.UpdateGameScreen();
+                game.PlayUser(Game.GetUserResponse(Console.ReadLine()));
                 game.PlayComputer();
-                game.PlayUser(game.GetUserResponse(Console.ReadLine()));
+                game.UpdateGameScreen();
                 game.EndRound();
+                //game.PrintWinners();
+                //Console.ReadKey();
+                game.ResetPlayers();
             }
 
             Console.ReadKey();

@@ -10,24 +10,33 @@ namespace BlackJack
     {
         private List<Player> players;
         private Deck stock;
-        private string screen;
+        List<Player> winners = new List<Player>();
+        Random random;
+        int round = 0;
+        int tie = 0;
 
         public Game(string playerName, Random random)
         {
             this.players = new List<Player>();
+            this.random = random;
             players.Add(new Player("Bender", PlayerType.Computer, random));
             players.Add(new Player(playerName, PlayerType.User, random));
-            stock = new Deck(random);
+            stock = GetNewDeck(random);
             DealInitialCards();
 
         }
 
+        private Deck GetNewDeck(Random random)
+        {
+            return new Deck(random);
+        }
+
         private void DealInitialCards()
         {
-            for (int i = 0; i < 2; i++)
+            foreach (Player player in players)
             {
-                players[i].Hand.Add(stock.Deal());
-                players[i].Hand.Add(stock.Deal());
+                player.Hand.Add(stock.Deal());
+                player.Hand.Add(stock.Deal());
             }
         }
 
@@ -54,7 +63,7 @@ namespace BlackJack
             }
         }
 
-        public UserResponse GetUserResponse(string parameter)
+        public static UserResponse GetUserResponse(string parameter)
         {
             string output = String.Empty;
             string p = parameter.ToLower();
@@ -86,7 +95,7 @@ namespace BlackJack
             if (response.IsAskingForCard)
                 foreach (Player player in players)
                 {
-                    if (player.Type == PlayerType.User && response.IsAskingForCard && !player.IsFullHand)
+                    if (player.Type == PlayerType.User && !player.IsFullHand)
                     {
                         player.Hand.Add(stock.Deal());
                     }
@@ -99,7 +108,6 @@ namespace BlackJack
                 {
                     if (player.Type == PlayerType.User)
                     {
-                        player.IsFullHand = true;
                         player.Ready = true;
                     }
                 }
@@ -116,7 +124,7 @@ namespace BlackJack
                     return;
             }
 
-            List<Player> winners = new List<Player>();
+            
             int maxPoints = 0;
 
             foreach (Player player in players)
@@ -131,15 +139,44 @@ namespace BlackJack
                 }
             }
 
-            foreach (Player player in winners)
-            {
-                player.Score++;
-            }
+            if (winners.Count > 1)
+                tie++;
+            else
+                winners[0].Score++;
+
+
+            if (stock.Cards.Count < 11)
+                stock = GetNewDeck(random);
+
+            PrintWinners();
         }
 
+        public void PrintWinners()
+        {
+            UpdateGameScreen(open: true);
 
+            string output = String.Empty;
+            if (winners.Count == 1)
+                output += $"Winner: {winners[0].Name}";
+            else
+                output += "It's a draw!";
 
-        public void UpdateGameScreen()
+            Console.WriteLine(output);
+        }
+
+        public void ResetPlayers()
+        {
+            foreach (Player player in players)
+            {
+                player.Fold();
+                player.Ready = false;
+            }
+
+            DealInitialCards();
+
+        }
+
+        public void UpdateGameScreen(bool open = false)
         {
             Console.Clear();
             string output = String.Empty;
@@ -155,13 +192,15 @@ namespace BlackJack
                 output += $"{player.Name}: {player.Score} | ";
             }
 
+            output += $"Tie: {tie} |";
+
             foreach (Player player in players)
             {
                 output += Environment.NewLine;
                 output += Environment.NewLine;
                 output += "----------------------------------------------\r\n";
                 output += Environment.NewLine;
-                output += $"{player}";
+                output += $"{player.Print(open)}";
             }
 
             output += Environment.NewLine;
@@ -172,6 +211,12 @@ namespace BlackJack
             output += "OPTIONS: [A] or [ENTER]: ASK ANOTHER CARD | [E]: ENOUGH CARDS | [R]: RESTART GAME | [X]: EXIT GAME";
 
             Console.WriteLine(output);
+        }
+
+        public void PrintRoundNumber()
+        {
+            round++;
+            Console.WriteLine($"Round {round}. Get ready.");
         }
 
         public void PlayOneRound()
