@@ -14,7 +14,7 @@ namespace BlackJack
         public PlayerType Type { get; }
 
         private bool isFullHand;
-        public bool IsFullHand { get { return Hand.Count >= 5 || Points >= 21; } set { isFullHand = value; } }
+        public bool IsFullHand { get { return Hand.Count >= 5 || Points >= 21 || Ready; } set { isFullHand = value; } }
         private int handLimit = 5;
 
         public int Score { get; set; } = 0;

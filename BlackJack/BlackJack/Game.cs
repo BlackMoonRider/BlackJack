@@ -112,7 +112,7 @@ namespace BlackJack
         {
             foreach (Player player in players)
             {
-                if (!player.IsFullHand && player.IsAnotherCardNeeded || player.Ready)
+                if (!player.IsFullHand)
                     return;
             }
 
@@ -121,7 +121,7 @@ namespace BlackJack
 
             foreach (Player player in players)
             {
-                if (player.Points == maxPoints) { }
+                if (player.Points == maxPoints)
                     winners.Add(player);
                 if (player.Points > maxPoints && player.Points < 22)
                 {
@@ -136,6 +136,8 @@ namespace BlackJack
                 player.Score++;
             }
         }
+
+
 
         public void UpdateGameScreen()
         {
