@@ -63,11 +63,11 @@ namespace BlackJack
             }
         }
 
-        public string Print(bool open = false)
+        public string Print(UpdateScreenOptions option)
         {
             string output = String.Empty;
 
-            if (Type == PlayerType.User || Type == PlayerType.Computer && open)
+            if (Type == PlayerType.User || Type == PlayerType.Computer && (option == UpdateScreenOptions.EndOfRound))
             {
                 output += $"{Name} has {Points} points:\r\n";
                 foreach (Card card in Hand)
@@ -75,7 +75,7 @@ namespace BlackJack
                     output += $"\t{card}\r\n";
                 }
             }
-            if (Type == PlayerType.Computer && !open)
+            if (Type == PlayerType.Computer && option == UpdateScreenOptions.InGame)
             {
                 output += $"{Name} has {Hand.Count} cards:\r\n";
                 foreach (Card card in Hand)

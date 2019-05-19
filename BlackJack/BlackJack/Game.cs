@@ -10,10 +10,11 @@ namespace BlackJack
     {
         private List<Player> players;
         private Deck stock;
-        List<Player> winners = new List<Player>();
+        List<Player> winners;
         Random random;
         int round = 0;
         int tie = 0;
+        bool bothLost = false;
 
         public Game(string playerName, Random random)
         {
@@ -22,22 +23,85 @@ namespace BlackJack
             players.Add(new Player("Bender", PlayerType.Computer, random));
             players.Add(new Player(playerName, PlayerType.User, random));
             stock = GetNewDeck(random);
-            DealInitialCards();
-
         }
 
-        private Deck GetNewDeck(Random random)
+        public void ResetPlayers()
         {
-            return new Deck(random);
+            foreach (Player player in players)
+            {
+                player.Fold();
+                player.Ready = false;
+            }
         }
 
-        private void DealInitialCards()
+        public void DealInitialCards()
         {
             foreach (Player player in players)
             {
                 player.Hand.Add(stock.Deal());
                 player.Hand.Add(stock.Deal());
             }
+        }
+
+        public void UpdateGameScreen(UpdateScreenOptions option)
+        {
+            Console.Clear();
+            string output = String.Empty;
+
+            output += "##############################################\r\n";
+            output += "############## -= Black Jack =- ##############\r\n";
+            output += "##############################################\r\n";
+            output += Environment.NewLine;
+
+            if (option == UpdateScreenOptions.EndOfRound)
+            {
+                string winner;
+                if (bothLost)
+                    winner = "Both lost!\r\n\r\n";
+                else
+                    winner = winners.Count > 1 ? "It's a tie!\r\n\r\n" : $"{winners[0].Name} wins!\r\n\r\n";
+
+                output += "\t\t" + winner;
+            }
+
+            output += $"| Round: {round} | ";
+
+
+            foreach (Player player in players)
+            {
+                output += $"{player.Name}: {player.Score} | ";
+            }
+
+            output += $"Tie: {tie} |";
+
+            foreach (Player player in players)
+            {
+                output += Environment.NewLine;
+                output += Environment.NewLine;
+                output += "----------------------------------------------\r\n";
+                output += Environment.NewLine;
+                output += $"{player.Print(option)}";
+            }
+
+            output += Environment.NewLine;
+            output += Environment.NewLine;
+            output += "----------------------------------------------\r\n";
+            output += Environment.NewLine;
+            output += Environment.NewLine;
+
+            switch (option)
+            {
+                case UpdateScreenOptions.InGame:
+                    output += "OPTIONS: [A] or [ENTER]: ASK ANOTHER CARD | [E]: ENOUGH CARDS";
+                    break;
+                case UpdateScreenOptions.EndOfRound:
+                    output += "OPTIONS: | [N] or [ENTER]: NEXT ROUND | [R]: RESTART GAME | [X]: EXIT GAME |"; 
+                    break;
+                default:
+                    break;
+            }
+
+            Console.WriteLine(output);
         }
 
         public void MakeComputerDecision()
@@ -51,43 +115,37 @@ namespace BlackJack
             }
         }
 
-        public void PlayComputer()
+        public static UserResponse ValidateUserInput(string parameter)
         {
-            foreach (Player player in players)
-            {
-                if (player.Type == PlayerType.Computer)
-                {
-                    if (player.IsAnotherCardNeeded)
-                        player.Hand.Add(stock.Deal());
-                }
-            }
-        }
-
-        public static UserResponse GetUserResponse(string parameter)
-        {
-            string output = String.Empty;
             string p = parameter.ToLower();
             p.Trim();
+
+            UserResponse userResponse;
 
             switch (parameter)
             {
                 case "":
                 case "a":
-                    string ma = "Player asks for another card";
-                    return new UserResponse(ma, true, false, false, false);
+                    userResponse = new UserResponse(true, false, false, false);
+                    break;
                 case "e":
-                    string me = "Player doesn't need an extra card";
-                    return new UserResponse(me, false, false, false, false);
+                    userResponse = new UserResponse(false, false, false, false);
+                    break;
                 case "r":
-                    string mr = "Player wants to restart the game";
-                    return new UserResponse(mr, false, true, false, false);
+                    userResponse = new UserResponse(false, true, false, false);
+                    break;
                 case "x":
-                    string mx = "Player wants to exit the game";
-                    return new UserResponse(mx, false, false, true, false);
+                    userResponse = new UserResponse(false, false, true, false);
+                    break;
+                case "n":
+                    userResponse = new UserResponse(false, false, false, true);
+                    break;
                 default:
-                    string mi = "The parameter is invalid";
-                    return new UserResponse(mi, false, false, false, true);
+                    userResponse = new UserResponse(true);
+                    break;
             }
+
+            return userResponse;
         }
 
         public void PlayUser(UserResponse response)
@@ -113,8 +171,72 @@ namespace BlackJack
                 }
             }
 
-            
+
         }
+
+        public void PlayComputer()
+        {
+            foreach (Player player in players)
+            {
+                if (player.Type == PlayerType.Computer)
+                {
+                    if (player.IsAnotherCardNeeded)
+                        player.Hand.Add(stock.Deal());
+                }
+            }
+        }
+
+        public bool ContinueRound()
+        {
+            foreach (Player player in players)
+            {
+                if (!player.IsFullHand)
+                    return true;
+            }
+            return false;
+        }
+
+
+        private Deck GetNewDeck(Random random)
+        {
+            return new Deck(random);
+        }
+
+
+
+
+        public void GetWinner()
+        {
+            int maxPoints = 0;
+            winners = new List<Player>();
+
+            foreach (Player player in players)
+            {
+                if (player.Points == maxPoints)
+                    winners.Add(player);
+                if (player.Points > maxPoints && player.Points < 22)
+                {
+                    maxPoints = player.Points;
+                    winners.Clear();
+                    winners.Add(player);
+                }
+            }
+
+            if (winners.Count > 1)
+            {
+                tie++;
+            }
+            if (winners.Count == 0)
+            {
+                bothLost = true;
+            }
+            else
+            {
+                winners[0].Score++;
+            }
+        }
+
+        
 
         public void EndRound()
         {
@@ -145,7 +267,7 @@ namespace BlackJack
                 winners[0].Score++;
 
 
-            if (stock.Cards.Count < 11)
+            if (stock.Cards.Count < 15)
                 stock = GetNewDeck(random);
 
             PrintWinners();
@@ -153,7 +275,7 @@ namespace BlackJack
 
         public void PrintWinners()
         {
-            UpdateGameScreen(open: true);
+            UpdateGameScreen(UpdateScreenOptions.EndOfRound);
 
             string output = String.Empty;
             if (winners.Count == 1)
@@ -164,54 +286,9 @@ namespace BlackJack
             Console.WriteLine(output);
         }
 
-        public void ResetPlayers()
-        {
-            foreach (Player player in players)
-            {
-                player.Fold();
-                player.Ready = false;
-            }
 
-            DealInitialCards();
 
-        }
-
-        public void UpdateGameScreen(bool open = false)
-        {
-            Console.Clear();
-            string output = String.Empty;
-
-            output += "##############################################\r\n";
-            output += "############## -= Black Jack =- ##############\r\n";
-            output += "##############################################\r\n";
-            output += Environment.NewLine;
-            output += "\t| ";
-
-            foreach (Player player in players)
-            {
-                output += $"{player.Name}: {player.Score} | ";
-            }
-
-            output += $"Tie: {tie} |";
-
-            foreach (Player player in players)
-            {
-                output += Environment.NewLine;
-                output += Environment.NewLine;
-                output += "----------------------------------------------\r\n";
-                output += Environment.NewLine;
-                output += $"{player.Print(open)}";
-            }
-
-            output += Environment.NewLine;
-            output += Environment.NewLine;
-            output += "----------------------------------------------\r\n";
-            output += Environment.NewLine;
-            output += Environment.NewLine;
-            output += "OPTIONS: [A] or [ENTER]: ASK ANOTHER CARD | [E]: ENOUGH CARDS | [R]: RESTART GAME | [X]: EXIT GAME";
-
-            Console.WriteLine(output);
-        }
+        
 
         public void PrintRoundNumber()
         {

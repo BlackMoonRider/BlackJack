@@ -8,18 +8,23 @@ namespace BlackJack
 {
     class UserResponse
     {
-        public string Message { get; }
+        //public string Message { get; }
         public bool IsAskingForCard { get; }
         public bool IsAskingForRestart { get; }
         public bool IsAskingToExit { get; }
-        public bool IsResponseInvalid { get; set; }
+        public bool IsAskingForNextRound { get; }
+        public bool IsResponseInvalid { get; }
 
-        public UserResponse(string m, bool a, bool r, bool x, bool i)
+        public UserResponse(bool a, bool r, bool x, bool n)
         {
-            Message = m;
+            //Message = m;
             IsAskingForCard = a;
             IsAskingForRestart = r;
             IsAskingToExit = x;
+            IsAskingForNextRound = n;
+        }
+        public UserResponse(bool i)
+        {
             IsResponseInvalid = i;
         }
     }

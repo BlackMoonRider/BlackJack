@@ -13,66 +13,43 @@ namespace BlackJack
             Random random = new Random();
 
             Game game = new Game("Player", random);
+            game.MakeComputerDecision();
 
-            while (true)
+            game.ResetPlayers();
+            game.DealInitialCards();
+
+
+            while (game.ContinueRound())
             {
-                //game.PrintRoundNumber();
-                //Console.ReadKey();
-
                 game.MakeComputerDecision();
-                game.UpdateGameScreen();
-                game.PlayUser(Game.GetUserResponse(Console.ReadLine()));
+                game.UpdateGameScreen(UpdateScreenOptions.InGame);
+
+
+                string input = String.Empty;
+                UserResponse userResponse = new UserResponse(true);
+                while (userResponse.IsResponseInvalid)
+                {
+                    input = Console.ReadLine();
+                    userResponse = Game.ValidateUserInput(input);
+                    if (userResponse.IsResponseInvalid)
+                    {
+                        game.UpdateGameScreen(UpdateScreenOptions.InGame);
+                        Console.WriteLine(Environment.NewLine);
+                        Console.WriteLine("> Input is invalid. Please try again:");
+                    }
+                }
+
+                game.PlayUser(userResponse);
                 game.PlayComputer();
-                game.UpdateGameScreen();
-                game.EndRound();
-                //game.PrintWinners();
-                //Console.ReadKey();
-                game.ResetPlayers();
+
+                game.UpdateGameScreen(UpdateScreenOptions.InGame);
             }
+
+            game.GetWinner();
+            game.UpdateGameScreen(UpdateScreenOptions.EndOfRound);
 
             Console.ReadKey();
-
-            Card card1 = new Card(Value.Jack, Suit.Clubs);
-            Card card2 = new Card(Value.Queen, Suit.Clubs);
-            Card card3 = new Card(Value.Ace, Suit.Clubs);
-            Console.WriteLine(card1 + card2 + card3);
-
-            Deck deck = new Deck(random);
-            foreach (Card card in deck.Cards)
-            {
-                Console.Write($"{card} | ");
-            }
-
-            Console.WriteLine(Environment.NewLine);
-
-
-            Player player = new Player("Test Player", PlayerType.User, random);
-            player.RecieveCard(deck.Deal());
-            Console.WriteLine(player);
-            Console.WriteLine(Environment.NewLine);
-
-            player.RecieveCard(deck.Deal());
-            Console.WriteLine(player);
-            Console.WriteLine(Environment.NewLine);
-
-            player.RecieveCard(deck.Deal());
-            Console.WriteLine(player);
-            Console.WriteLine(Environment.NewLine);
-
-            player.RecieveCard(deck.Deal());
-            Console.WriteLine(player);
-            Console.WriteLine(Environment.NewLine);
-
-            player.RecieveCard(deck.Deal());
-            Console.WriteLine(player);
-            Console.WriteLine(Environment.NewLine);
-
-            foreach (Card card in deck.Cards)
-            {
-                Console.Write($"{card} | ");
-            }
-
-            Console.ReadKey();
+                           
         }
     }
 }
