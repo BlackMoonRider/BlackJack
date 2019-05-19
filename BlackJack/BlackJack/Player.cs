@@ -8,13 +8,22 @@ namespace BlackJack
 {
     class Player
     {
+        Random random;
         public string Name { get; set; }
         public List<Card> Hand { get; private set; }
         public bool FullHand { get; private set; }
         private int handLimit = 5;
         public PlayerType Type { get; }
         public bool Showdown { get; set; }
-        public int Score
+        public bool NeedAnotherCard
+        {
+            get
+            {
+                DecisionMaker decisionMaker = new DecisionMaker(Points, random);
+                return decisionMaker.MakeDecision();
+            }
+        }
+        public int Points
         {
             get
             {
@@ -33,7 +42,7 @@ namespace BlackJack
 
             if (Type == PlayerType.User || Showdown == true)
             {
-                output += $"{Name} has {Score} points:\r\n";
+                output += $"{Name} has {Points} points:\r\n";
                 foreach (Card card in Hand)
                 {
                     output += $"\t{card}\r\n";
@@ -48,13 +57,17 @@ namespace BlackJack
                 }
             }
 
+            // Debug purposes
+            output += NeedAnotherCard ? "I need another card." : "That's enough";
+
             return output;
         }
 
-        public Player(string name, PlayerType type)
+        public Player(string name, PlayerType type, Random random)
         {
             Name = name;
             Type = type;
+            this.random = random;
             Fold();
             FullHand = false;
         }
