@@ -22,7 +22,24 @@ namespace BlackJack
             this.random = random;
             players.Add(new Player("Bender", PlayerType.Computer, random));
             players.Add(new Player(playerName, PlayerType.User, random));
-            stock = GetNewDeck(random);
+            stock = GetNewDeck();
+        }
+
+        public void UpdateRoundCounter()
+        {
+            round++;
+        }
+
+        public void ResetRoundData()
+        {
+            bothLost = false;
+        }
+
+        public void ResetGameData()
+        {
+            ResetRoundData();
+            stock = GetNewDeck();
+            round = 0;
         }
 
         public void ResetPlayers()
@@ -115,30 +132,38 @@ namespace BlackJack
             }
         }
 
-        public static UserResponse ValidateUserInput(string parameter)
+        public static UserResponse ValidateUserInput(string parameter, UpdateScreenOptions options)
         {
             string p = parameter.ToLower();
             p.Trim();
 
-            UserResponse userResponse;
+            UserResponse userResponse = new UserResponse(true);
 
             switch (parameter)
             {
                 case "":
+                    if (options == UpdateScreenOptions.InGame) userResponse = new UserResponse(true, false, false, false);
+                    if (options == UpdateScreenOptions.EndOfRound) userResponse = new UserResponse(false, false, false, true);
+                    break;
                 case "a":
-                    userResponse = new UserResponse(true, false, false, false);
+                    if (options == UpdateScreenOptions.InGame) userResponse = new UserResponse(true, false, false, false);
+                    else userResponse = new UserResponse(true);
                     break;
                 case "e":
-                    userResponse = new UserResponse(false, false, false, false);
+                    if (options == UpdateScreenOptions.InGame) userResponse = new UserResponse(false, false, false, false);
+                    else userResponse = new UserResponse(true);
                     break;
                 case "r":
-                    userResponse = new UserResponse(false, true, false, false);
+                    if (options == UpdateScreenOptions.EndOfRound) userResponse = new UserResponse(false, true, false, false);
+                    else userResponse = new UserResponse(true);
                     break;
                 case "x":
-                    userResponse = new UserResponse(false, false, true, false);
+                    if (options == UpdateScreenOptions.EndOfRound) userResponse = new UserResponse(false, false, true, false);
+                    else userResponse = new UserResponse(true);
                     break;
                 case "n":
-                    userResponse = new UserResponse(false, false, false, true);
+                    if (options == UpdateScreenOptions.EndOfRound) userResponse = new UserResponse(false, false, false, true);
+                    else userResponse = new UserResponse(true);
                     break;
                 default:
                     userResponse = new UserResponse(true);
@@ -197,7 +222,7 @@ namespace BlackJack
         }
 
 
-        private Deck GetNewDeck(Random random)
+        private Deck GetNewDeck()
         {
             return new Deck(random);
         }
@@ -230,75 +255,19 @@ namespace BlackJack
             {
                 bothLost = true;
             }
-            else
-            {
-                winners[0].Score++;
-            }
-        }
-
-        
-
-        public void EndRound()
-        {
-            foreach (Player player in players)
-            {
-                if (!player.IsFullHand)
-                    return;
-            }
-
-            
-            int maxPoints = 0;
-
-            foreach (Player player in players)
-            {
-                if (player.Points == maxPoints)
-                    winners.Add(player);
-                if (player.Points > maxPoints && player.Points < 22)
-                {
-                    maxPoints = player.Points;
-                    winners.Clear();
-                    winners.Add(player);
-                }
-            }
-
-            if (winners.Count > 1)
-                tie++;
-            else
-                winners[0].Score++;
-
-
-            if (stock.Cards.Count < 15)
-                stock = GetNewDeck(random);
-
-            PrintWinners();
-        }
-
-        public void PrintWinners()
-        {
-            UpdateGameScreen(UpdateScreenOptions.EndOfRound);
-
-            string output = String.Empty;
             if (winners.Count == 1)
-                output += $"Winner: {winners[0].Name}";
-            else
-                output += "It's a draw!";
-
-            Console.WriteLine(output);
+            {
+                winners[0].Score++;
+            }
         }
-
-
 
         
-
-        public void PrintRoundNumber()
+        public void UpdateStockIfNeeded()
         {
-            round++;
-            Console.WriteLine($"Round {round}. Get ready.");
+            if (stock.Cards.Count < 10)
+                stock = GetNewDeck();
         }
+        
 
-        public void PlayOneRound()
-        {
-            DealInitialCards();
-        }
     }
 }

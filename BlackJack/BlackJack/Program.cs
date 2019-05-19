@@ -13,24 +13,28 @@ namespace BlackJack
             Random random = new Random();
 
             Game game = new Game("Player", random);
-            game.MakeComputerDecision();
 
+        start:
+
+            game.UpdateRoundCounter();
+            game.ResetRoundData();
             game.ResetPlayers();
             game.DealInitialCards();
+            game.MakeComputerDecision();
 
+            string input = String.Empty;
+            UserResponse userResponse;
 
             while (game.ContinueRound())
             {
                 game.MakeComputerDecision();
                 game.UpdateGameScreen(UpdateScreenOptions.InGame);
 
-
-                string input = String.Empty;
-                UserResponse userResponse = new UserResponse(true);
+                userResponse = new UserResponse(true);
                 while (userResponse.IsResponseInvalid)
                 {
                     input = Console.ReadLine();
-                    userResponse = Game.ValidateUserInput(input);
+                    userResponse = Game.ValidateUserInput(input, UpdateScreenOptions.InGame);
                     if (userResponse.IsResponseInvalid)
                     {
                         game.UpdateGameScreen(UpdateScreenOptions.InGame);
@@ -47,6 +51,25 @@ namespace BlackJack
 
             game.GetWinner();
             game.UpdateGameScreen(UpdateScreenOptions.EndOfRound);
+
+            game.UpdateStockIfNeeded();
+
+            userResponse = new UserResponse(true);
+            while (userResponse.IsResponseInvalid)
+            {
+                input = Console.ReadLine();
+                userResponse = Game.ValidateUserInput(input, UpdateScreenOptions.EndOfRound);
+                if (userResponse.IsResponseInvalid)
+                {
+                    game.UpdateGameScreen(UpdateScreenOptions.InGame);
+                    Console.WriteLine(Environment.NewLine);
+                    Console.WriteLine("> Input is invalid. Please try again:");
+                }
+            }
+
+            if (userResponse.IsAskingForNextRound)
+                goto start;
+
 
             Console.ReadKey();
                            
