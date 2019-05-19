@@ -18,10 +18,9 @@ namespace BlackJack
             {
                 game.MakeComputerDecision();
                 game.UpdateGameScreen();
-
                 game.PlayComputer();
                 game.PlayUser(game.GetUserResponse(Console.ReadLine()));
-
+                game.EndRound();
             }
 
             Console.ReadKey();

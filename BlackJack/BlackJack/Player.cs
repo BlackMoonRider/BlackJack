@@ -11,25 +11,27 @@ namespace BlackJack
         Random random;
         public string Name { get; set; }
         public List<Card> Hand { get; set; }
-        private bool isFullHand;
-        public bool IsFullHand { get { return Hand.Count >= 5; } private set { isFullHand = value; } }
-        private int handLimit = 5;
         public PlayerType Type { get; }
+
+        private bool isFullHand;
+        public bool IsFullHand { get { return Hand.Count >= 5 || Points >= 21; } set { isFullHand = value; } }
+        private int handLimit = 5;
+
         public int Score { get; set; } = 0;
         // public bool IsShowdown { get; set; }
-        private bool locked = false;
+        public bool Ready = false;
         public bool IsAnotherCardNeeded { get; private set; }
         public void MakeDecision()
         {
-            if (!locked)
+            if (!Ready)
             {
                 DecisionMaker decisionMaker = new DecisionMaker(Points, random);
                 IsAnotherCardNeeded = decisionMaker.MakeDecision();
             }
             if (!IsAnotherCardNeeded)
-                locked = true;
+                Ready = true;
         }
-        public void Unlock() => locked = false;
+        public void Unlock() => Ready = false;
         public int Points
         {
             get

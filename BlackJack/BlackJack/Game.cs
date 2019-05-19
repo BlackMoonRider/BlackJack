@@ -63,18 +63,18 @@ namespace BlackJack
             switch (parameter)
             {
                 case "":
-                case "m":
-                    string mm = "Player asks for another card";
-                    return new UserResponse(mm, true, false, false, false);
-                case "s":
-                    string ms = "Player doesn't need an extra card";
-                    return new UserResponse(ms, false, false, false, false);
+                case "a":
+                    string ma = "Player asks for another card";
+                    return new UserResponse(ma, true, false, false, false);
+                case "e":
+                    string me = "Player doesn't need an extra card";
+                    return new UserResponse(me, false, false, false, false);
                 case "r":
                     string mr = "Player wants to restart the game";
                     return new UserResponse(mr, false, true, false, false);
-                case "e":
-                    string me = "Player wants to exit the game";
-                    return new UserResponse(me, false, false, true, false);
+                case "x":
+                    string mx = "Player wants to exit the game";
+                    return new UserResponse(mx, false, false, true, false);
                 default:
                     string mi = "The parameter is invalid";
                     return new UserResponse(mi, false, false, false, true);
@@ -91,6 +91,50 @@ namespace BlackJack
                         player.Hand.Add(stock.Deal());
                     }
                 }
+
+            if (!response.IsAskingForCard)
+            {
+
+                foreach (Player player in players)
+                {
+                    if (player.Type == PlayerType.User)
+                    {
+                        player.IsFullHand = true;
+                        player.Ready = true;
+                    }
+                }
+            }
+
+            
+        }
+
+        public void EndRound()
+        {
+            foreach (Player player in players)
+            {
+                if (!player.IsFullHand && player.IsAnotherCardNeeded || player.Ready)
+                    return;
+            }
+
+            List<Player> winners = new List<Player>();
+            int maxPoints = 0;
+
+            foreach (Player player in players)
+            {
+                if (player.Points == maxPoints) { }
+                    winners.Add(player);
+                if (player.Points > maxPoints && player.Points < 22)
+                {
+                    maxPoints = player.Points;
+                    winners.Clear();
+                    winners.Add(player);
+                }
+            }
+
+            foreach (Player player in winners)
+            {
+                player.Score++;
+            }
         }
 
         public void UpdateGameScreen()
@@ -113,9 +157,17 @@ namespace BlackJack
             {
                 output += Environment.NewLine;
                 output += Environment.NewLine;
+                output += "----------------------------------------------\r\n";
+                output += Environment.NewLine;
                 output += $"{player}";
             }
 
+            output += Environment.NewLine;
+            output += Environment.NewLine;
+            output += "----------------------------------------------\r\n";
+            output += Environment.NewLine;
+            output += Environment.NewLine;
+            output += "OPTIONS: [A] or [ENTER]: ASK ANOTHER CARD | [E]: ENOUGH CARDS | [R]: RESTART GAME | [X]: EXIT GAME";
 
             Console.WriteLine(output);
         }

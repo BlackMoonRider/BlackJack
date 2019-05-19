@@ -14,12 +14,12 @@ namespace BlackJack
         public bool IsAskingToExit { get; }
         public bool IsResponseInvalid { get; set; }
 
-        public UserResponse(string m, bool c, bool r, bool e, bool i)
+        public UserResponse(string m, bool a, bool r, bool x, bool i)
         {
             Message = m;
-            IsAskingForCard = c;
+            IsAskingForCard = a;
             IsAskingForRestart = r;
-            IsAskingToExit = e;
+            IsAskingToExit = x;
             IsResponseInvalid = i;
         }
     }
