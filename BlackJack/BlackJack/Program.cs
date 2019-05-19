@@ -18,10 +18,32 @@ namespace BlackJack
             Deck deck = new Deck();
             foreach (Card card in deck.Cards)
             {
-                Console.WriteLine(card);
+                Console.Write($"{card} | ");
             }
 
+            Console.WriteLine(Environment.NewLine);
 
+            Player player = new Player("Test Player");
+            player.RecieveCard(deck.Deal());
+            Console.WriteLine(player);
+            Console.WriteLine(Environment.NewLine);
+
+            player.RecieveCard(deck.Deal());
+            Console.WriteLine(player);
+            Console.WriteLine(Environment.NewLine);
+
+            player.RecieveCard(deck.Deal());
+            Console.WriteLine(player);
+            Console.WriteLine(Environment.NewLine);
+
+            player.RecieveCard(deck.Deal());
+            Console.WriteLine(player);
+            Console.WriteLine(Environment.NewLine);
+
+            foreach (Card card in deck.Cards)
+            {
+                Console.Write($"{card} | ");
+            }
 
             Console.ReadKey();
         }
