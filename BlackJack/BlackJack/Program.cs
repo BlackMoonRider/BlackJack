@@ -23,7 +23,7 @@ namespace BlackJack
 
             Console.WriteLine(Environment.NewLine);
 
-            Player player = new Player("Test Player");
+            Player player = new Player("Test Player", PlayerType.Computer);
             player.RecieveCard(deck.Deal());
             Console.WriteLine(player);
             Console.WriteLine(Environment.NewLine);

@@ -10,6 +10,10 @@ namespace BlackJack
     {
         public string Name { get; set; }
         public List<Card> Hand { get; private set; }
+        public bool FullHand { get; private set; }
+        private int handLimit = 5;
+        public PlayerType Type { get; }
+        public bool Showdown { get; set; }
         public int Score
         {
             get
@@ -27,24 +31,43 @@ namespace BlackJack
         {
             string output = String.Empty;
 
-            output += $"{Name} has {Score} points:\r\n";
-            foreach (Card card in Hand)
+            if (Type == PlayerType.User || Showdown == true)
             {
-                output += $"\t{card}";
+                output += $"{Name} has {Score} points:\r\n";
+                foreach (Card card in Hand)
+                {
+                    output += $"\t{card}\r\n";
+                }
+            }
+            else
+            {
+                output += $"{Name} has {Hand.Count} cards:\r\n";
+                foreach (Card card in Hand)
+                {
+                    output += $"\t##### of #####\r\n";
+                }
             }
 
             return output;
         }
 
-        public Player(string name)
+        public Player(string name, PlayerType type)
         {
             Name = name;
+            Type = type;
             Fold();
+            FullHand = false;
         }
 
         public void RecieveCard(Card card)
         {
-            Hand.Add(card);
+            if (Hand.Count <= handLimit)
+            {
+                Hand.Add(card);
+                FullHand = false;
+            }
+            else
+                FullHand = true;
         }
 
         public void Fold()
