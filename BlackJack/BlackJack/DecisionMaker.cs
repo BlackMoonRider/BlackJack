@@ -34,10 +34,10 @@ namespace BlackJack
                     decisionToTake = random.NextDouble() > 0.5 ? true : false;
                     break;
                 case 19:
-                    decisionToTake = random.NextDouble() > 0.8 ? true : false;
+                    decisionToTake = random.NextDouble() > 0.9 ? true : false;
                     break;
                 case 20:
-                    decisionToTake = random.NextDouble() > 0.98 ? true : false;
+                    decisionToTake = random.NextDouble() > 0.997 ? true : false;
                     break;
                 default:
                     if (points <= 15)

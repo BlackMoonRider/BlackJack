@@ -28,10 +28,28 @@ namespace BlackJack
             get
             {
                 int result = 0;
-                foreach (Card card in Hand)
+                List<Card> hand = new List<Card>(Hand);
+                List<Card> aces = new List<Card>();
+
+                for (int i = 0; i < hand.Count; i++)
+                {
+                    if (hand[i].Value == Value.Ace)
+                    {
+                        aces.Add(hand[i]);
+                        hand.RemoveAt(i);
+                    }
+                }
+
+                foreach (Card card in hand)
                 {
                     result += card; 
                 }
+
+                foreach (Card card in aces)
+                {
+                    result += card;
+                }
+
                 return result;
             }
         }
