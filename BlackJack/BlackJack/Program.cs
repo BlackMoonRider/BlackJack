@@ -10,6 +10,8 @@ namespace BlackJack
     {
         static void Main(string[] args)
         {
+        beginning:
+
             Random random = new Random();
 
             Game game = new Game("Player", random);
@@ -70,8 +72,17 @@ namespace BlackJack
             if (userResponse.IsAskingForNextRound)
                 goto start;
 
+            if (userResponse.IsAskingForRestart)
+                goto beginning;
 
-            Console.ReadKey();
+            if (userResponse.IsAskingToExit)
+            {
+                Console.WriteLine("> Are you sure you want to exit the game? \r\n  (Type capital 'N' to continue the game or press any other key to exit):");
+                if ((ConsoleKey)Console.Read() == ConsoleKey.N)
+                    goto start;
+            }
+
+            //Console.ReadKey();
                            
         }
     }

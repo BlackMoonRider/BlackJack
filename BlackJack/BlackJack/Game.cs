@@ -20,7 +20,7 @@ namespace BlackJack
         {
             this.players = new List<Player>();
             this.random = random;
-            players.Add(new Player("Bender", PlayerType.Computer, random));
+            players.Add(new Player("Computer", PlayerType.Computer, random));
             players.Add(new Player(playerName, PlayerType.User, random));
             stock = GetNewDeck();
         }
