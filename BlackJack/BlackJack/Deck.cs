@@ -9,11 +9,10 @@ namespace BlackJack
     class Deck
     {
         public List<Card> Cards;
-        private Random random = new Random();
         public bool DeckRunsOut = false;
         private int deckRunsOutLimit = 13;
 
-        public Deck()
+        public Deck(Random random)
         {
             Cards = new List<Card>();
 
@@ -21,10 +20,10 @@ namespace BlackJack
                 for (int value = 2; value <= 14; value++)
                     Cards.Add(new Card((Value)value, (Suit)suit));
 
-            Cards = Shuffle(Cards);
+            Cards = Shuffle(Cards, random);
         }
 
-        private List<Card> Shuffle(List<Card> cards)
+        private List<Card> Shuffle(List<Card> cards, Random random)
         {
             List<Card> initial = cards;
             List<Card> shuffled = new List<Card>();

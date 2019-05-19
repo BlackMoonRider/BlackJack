@@ -10,19 +10,26 @@ namespace BlackJack
     {
         Random random;
         public string Name { get; set; }
-        public List<Card> Hand { get; private set; }
-        public bool FullHand { get; private set; }
+        public List<Card> Hand { get; set; }
+        private bool isFullHand;
+        public bool IsFullHand { get { return Hand.Count >= 5; } private set { isFullHand = value; } }
         private int handLimit = 5;
         public PlayerType Type { get; }
-        public bool Showdown { get; set; }
-        public bool NeedAnotherCard
+        public int Score { get; set; } = 0;
+        // public bool IsShowdown { get; set; }
+        private bool locked = false;
+        public bool IsAnotherCardNeeded { get; private set; }
+        public void MakeDecision()
         {
-            get
+            if (!locked)
             {
                 DecisionMaker decisionMaker = new DecisionMaker(Points, random);
-                return decisionMaker.MakeDecision();
+                IsAnotherCardNeeded = decisionMaker.MakeDecision();
             }
+            if (!IsAnotherCardNeeded)
+                locked = true;
         }
+        public void Unlock() => locked = false;
         public int Points
         {
             get
@@ -42,7 +49,7 @@ namespace BlackJack
 
                 foreach (Card card in hand)
                 {
-                    result += card; 
+                    result += card;
                 }
 
                 foreach (Card card in aces)
@@ -58,7 +65,7 @@ namespace BlackJack
         {
             string output = String.Empty;
 
-            if (Type == PlayerType.User || Showdown == true)
+            if (Type == PlayerType.User || Type == PlayerType.Computer && IsAnotherCardNeeded == false)
             {
                 output += $"{Name} has {Points} points:\r\n";
                 foreach (Card card in Hand)
@@ -66,7 +73,7 @@ namespace BlackJack
                     output += $"\t{card}\r\n";
                 }
             }
-            else
+            if (Type == PlayerType.Computer && IsAnotherCardNeeded == true)
             {
                 output += $"{Name} has {Hand.Count} cards:\r\n";
                 foreach (Card card in Hand)
@@ -76,7 +83,7 @@ namespace BlackJack
             }
 
             // Debug purposes
-            output += NeedAnotherCard ? "I need another card." : "That's enough";
+            output += IsAnotherCardNeeded ? "I need another card." : "That's enough";
 
             return output;
         }
@@ -87,7 +94,7 @@ namespace BlackJack
             Type = type;
             this.random = random;
             Fold();
-            FullHand = false;
+            IsFullHand = false;
         }
 
         public void RecieveCard(Card card)
@@ -95,10 +102,10 @@ namespace BlackJack
             if (Hand.Count <= handLimit)
             {
                 Hand.Add(card);
-                FullHand = false;
+                IsFullHand = false;
             }
             else
-                FullHand = true;
+                IsFullHand = true;
         }
 
         public void Fold()
