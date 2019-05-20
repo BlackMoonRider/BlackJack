@@ -3,7 +3,7 @@
 This is a simple version of Black Jack played through the Windows Console. 
 
 ```
-![screenshot](screen.jpg)
+![screenshot](https://github.com/BlackMoonRider/BlackJack/blob/master/screen.jpg)
 ```
 
 ## Features
