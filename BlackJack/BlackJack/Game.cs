@@ -66,21 +66,24 @@ namespace BlackJack
             string output = String.Empty;
             string separator = "------------------------------------------------\r\n";
 
+            string header = "-= Black Jack =-";
+            if (option == UpdateScreenOptions.EndOfRound)
+            {
+                if (bothLost)
+                    header = "   Both lost!   ";
+                else
+                    header = winners.Count > 1 ? "  It's a tie!!  " : $" {winners[0].Name} wins! ";
+            }
+
+            if (header.Length == 14)
+                header = $" {header} ";
+
             output += "################################################\r\n";
-            output += "############### -= Black Jack =- ###############\r\n";
+            output += $"############### {header} ###############\r\n";
             output += "################################################\r\n";
             output += Environment.NewLine;
 
-            if (option == UpdateScreenOptions.EndOfRound)
-            {
-                string winner;
-                if (bothLost)
-                    winner = "Both lost!\r\n\r\n";
-                else
-                    winner = winners.Count > 1 ? "It's a tie!\r\n\r\n" : $"{winners[0].Name} wins!\r\n\r\n";
 
-                output += "\t\t" + winner;
-            }
 
             output += $"| Round: {round} | ";
 
