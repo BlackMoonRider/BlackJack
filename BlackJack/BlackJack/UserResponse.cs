@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlackJack
 {
-    class UserResponse
+    struct UserResponse
     {
         //public string Message { get; }
         public bool IsAskingForCard { get; }
@@ -22,9 +22,14 @@ namespace BlackJack
             IsAskingForRestart = r;
             IsAskingToExit = x;
             IsAskingForNextRound = n;
+            IsResponseInvalid = false;
         }
         public UserResponse(bool i)
         {
+            IsAskingForCard = false;
+            IsAskingForRestart = false;
+            IsAskingToExit = false;
+            IsAskingForNextRound = false;
             IsResponseInvalid = i;
         }
     }

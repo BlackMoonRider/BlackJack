@@ -90,7 +90,7 @@ namespace BlackJack
                 output += $"{player.Name}: {player.Score} | ";
             }
 
-            output += $"Tie: {tie} |";
+            output += $"Ties: {tie} |";
 
             foreach (Player player in players)
             {
@@ -107,16 +107,32 @@ namespace BlackJack
             output += Environment.NewLine;
             output += Environment.NewLine;
 
-            switch (option)
+            bool isEnough = false;
+            foreach (Player player in players)
             {
-                case UpdateScreenOptions.InGame:
-                    output += "OPTIONS: [A] or [ENTER]: ASK ANOTHER CARD | [E]: ENOUGH CARDS";
-                    break;
-                case UpdateScreenOptions.EndOfRound:
-                    output += "OPTIONS: | [N] or [ENTER]: NEXT ROUND | [R]: RESTART GAME | [X]: EXIT GAME |"; 
-                    break;
-                default:
-                    break;
+                if (player.Type == PlayerType.User)
+                    isEnough = player.IsFullHand;
+            }
+
+            if (isEnough)
+                output += "OPTIONS: [ENTER]: NEXT TURN";
+
+            else
+            {
+                switch (option)
+                {
+                    case UpdateScreenOptions.InGame:
+                        output += "OPTIONS: [A] or [ENTER]: ASK CARD | [E]: ENOUGH CARDS";
+                        break;
+                    //case UpdateScreenOptions.EnoughCards:
+                    //    output += "OPTIONS: [ENTER]: NEXT TURN";
+                    //    break;
+                    case UpdateScreenOptions.EndOfRound:
+                        output += "OPTIONS: [N] or [ENTER]: NEXT ROUND | [R]: RESTART GAME | [X]: EXIT GAME"; 
+                        break;
+                    default:
+                        break;
+                }
             }
 
             Console.WriteLine(output);
