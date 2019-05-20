@@ -83,10 +83,7 @@ namespace BlackJack
             output += "################################################\r\n";
             output += Environment.NewLine;
 
-
-
             output += $"| Round: {round} | ";
-
 
             foreach (Player player in players)
             {
@@ -110,32 +107,32 @@ namespace BlackJack
             output += Environment.NewLine;
             output += Environment.NewLine;
 
-            bool isEnough = false;
-            foreach (Player player in players)
-            {
-                if (player.Type == PlayerType.User)
-                    isEnough = player.IsFullHand;
-            }
+            //bool isEnough = false;
+            //foreach (Player player in players)
+            //{
+            //    if (player.Type == PlayerType.User)
+            //        isEnough = player.IsFullHand;
+            //}
 
-            if (isEnough)
-                output += "OPTIONS: [ENTER]: NEXT TURN";
+            //if (isEnough)
+            //    output += "OPTIONS: [ENTER]: NEXT TURN";
 
-            else
+            //else {
+            //}
+
+            switch (option)
             {
-                switch (option)
-                {
-                    case UpdateScreenOptions.InGame:
-                        output += "OPTIONS: [A] or [ENTER]: ASK CARD | [E]: ENOUGH CARDS";
-                        break;
-                    //case UpdateScreenOptions.EnoughCards:
-                    //    output += "OPTIONS: [ENTER]: NEXT TURN";
-                    //    break;
-                    case UpdateScreenOptions.EndOfRound:
-                        output += "OPTIONS: [N] or [ENTER]: NEXT ROUND | [R]: RESTART GAME | [X]: EXIT GAME"; 
-                        break;
-                    default:
-                        break;
-                }
+                case UpdateScreenOptions.InGame:
+                    output += "OPTIONS: [A] or [ENTER]: ASK CARD | [E]: ENOUGH CARDS";
+                    break;
+                //case UpdateScreenOptions.EnoughCards:
+                //    output += "OPTIONS: [ENTER]: NEXT TURN";
+                //    break;
+                case UpdateScreenOptions.EndOfRound:
+                    output += "OPTIONS: [N] or [ENTER]: NEXT ROUND | [R]: RESTART GAME | [X]: EXIT GAME";
+                    break;
+                default:
+                    break;
             }
 
             Console.WriteLine(output);
