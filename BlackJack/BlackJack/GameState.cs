@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace BlackJack
 {
-    enum UpdateScreenOptions
+    enum GameState
     {
-        InGame,
-        //EnoughCards,
-        EndOfRound,
+        PlayingRound,
+        PlayersChoiceIsMade,
+        RoundFinished,
     }
 }

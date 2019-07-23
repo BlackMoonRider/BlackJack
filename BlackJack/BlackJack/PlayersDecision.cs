@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace BlackJack
 {
-    enum PlayerType
+    enum PlayersDecision
     {
-        Computer,
-        User,
+        AskCard,
+        EnoughCards,
+        NextRound,
+        RestartGame,
+        ExitGame,
+        Next,
+        None
     }
 }

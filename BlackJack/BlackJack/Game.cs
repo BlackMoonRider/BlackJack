@@ -8,278 +8,173 @@ namespace BlackJack
 {
     class Game
     {
-        private List<Player> players;
-        private Deck stock;
-        List<Player> winners;
-        Random random;
-        int round = 0;
-        int tie = 0;
-        bool bothLost = false;
+        private readonly List<Player> players;
+        private Deck deck;
+        private Player winner;
+        private bool tie;
+        private ScreenRenderer screenRenderer;
 
-        public Game(string playerName, Random random)
+        private int roundNumber;
+        private int playerPoints;
+        private int computerPoints;
+        private int numberOfTies;
+        private int numberOfBothLost;
+
+        public Game(ScreenRenderer screenRenderer)
         {
-            this.players = new List<Player>();
-            this.random = random;
-            players.Add(new Player("Computer", PlayerType.Computer, random));
-            players.Add(new Player(playerName, PlayerType.User, random));
-            stock = GetNewDeck();
+            this.screenRenderer = screenRenderer;
+
+            players = new List<Player>();
+            players.Add(new PlayerUser());
+            players.Add(new PlayerComputer());
+
+            ResetGame();
         }
 
-        public void UpdateRoundCounter()
+        public void ResetRound()
         {
-            round++;
-        }
-
-        public void ResetRoundData()
-        {
-            bothLost = false;
-        }
-
-        public void ResetGameData()
-        {
-            ResetRoundData();
-            stock = GetNewDeck();
-            round = 0;
-        }
-
-        public void ResetPlayers()
-        {
+            winner = null;
+            tie = false;
             foreach (Player player in players)
             {
                 player.Fold();
-                player.Ready = false;
+                player.StopDeal = false;
             }
         }
 
-        public void DealInitialCards()
+        private void ResetGame()
+        {
+            roundNumber = 0;
+            playerPoints = 0;
+            computerPoints = 0;
+            numberOfTies = 0;
+            numberOfBothLost = 0;
+
+            deck = new Deck();
+
+            ResetRound();
+        }
+
+        public void PlayOneStep()
+        {
+            roundNumber++;
+            Settings.CurrentGameState = GameState.PlayingRound;
+            Settings.CurrentPlayersDecision = PlayersDecision.AskCard;
+            DealInitialCards();
+            UpdateScreen();
+
+            while (!StopDealingToEverybody())
+            {
+                foreach (Player player in players)
+                {
+                    player.CheckStopDeal();
+                }
+
+                if (players[0].StopDeal)
+                {
+                    Settings.CurrentGameState = GameState.PlayersChoiceIsMade;
+                    UpdateScreen();
+                }
+
+
+                players[0].GetDecision();
+
+                if (!players[1].StopDeal)
+                    players[1].GetDecision();
+
+                foreach (Player player in players)
+                {
+                    if (!player.StopDeal)
+                        DealOneCard(player);
+                }
+
+                foreach (Player player in players)
+                {
+                    player.CheckStopDeal();
+                }
+
+                UpdateScreen();
+            }
+
+            Settings.CurrentGameState = GameState.RoundFinished;
+            DetermineWinner();
+            UpdateStatistics();
+            UpdateScreen();
+            players[0].GetDecision();
+
+            if (Settings.CurrentPlayersDecision == PlayersDecision.NextRound)
+                ResetRound();
+
+            if (Settings.CurrentPlayersDecision == PlayersDecision.RestartGame)
+                ResetGame();
+
+            if (Settings.CurrentPlayersDecision == PlayersDecision.ExitGame)
+                Environment.Exit(0);
+            
+        }
+
+        public void DetermineWinner()
         {
             foreach (Player player in players)
             {
-                player.Hand.Add(stock.Deal());
-                player.Hand.Add(stock.Deal());
-            }
-        }
-
-        public void UpdateGameScreen(UpdateScreenOptions option)
-        {
-            Console.Clear();
-            string output = String.Empty;
-            string separator = "------------------------------------------------\r\n";
-
-            string header = "-= Black Jack =-";
-            if (option == UpdateScreenOptions.EndOfRound)
-            {
-                if (bothLost)
-                    header = "   Both lost!   ";
+                if (player.Score > 21)
+                    continue;
+                else if (winner != null && player.Score > winner.Score)
+                    winner = player;
+                else if (winner == null)
+                    winner = player;
+                else if (player.Score == winner.Score)
+                    tie = true;
                 else
-                    header = winners.Count > 1 ? "  It's a tie!!  " : $" {winners[0].Name} wins! ";
-            }
-
-            if (header.Length == 14)
-                header = $" {header} ";
-
-            output += "################################################\r\n";
-            output += $"############### {header} ###############\r\n";
-            output += "################################################\r\n";
-            output += Environment.NewLine;
-
-            output += $"| Round: {round} | ";
-
-            foreach (Player player in players)
-            {
-                output += $"{player.Name}: {player.Score} | ";
-            }
-
-            output += $"Ties: {tie} |";
-
-            foreach (Player player in players)
-            {
-                output += Environment.NewLine;
-                output += Environment.NewLine;
-                output += separator;
-                output += Environment.NewLine;
-                output += $"{player.Print(option)}";
-            }
-
-            output += Environment.NewLine;
-            output += Environment.NewLine;
-            output += separator;
-            output += Environment.NewLine;
-            output += Environment.NewLine;
-
-            //bool isEnough = false;
-            //foreach (Player player in players)
-            //{
-            //    if (player.Type == PlayerType.User)
-            //        isEnough = player.IsFullHand;
-            //}
-
-            //if (isEnough)
-            //    output += "OPTIONS: [ENTER]: NEXT TURN";
-
-            //else {
-            //}
-
-            switch (option)
-            {
-                case UpdateScreenOptions.InGame:
-                    output += "OPTIONS: [A] or [ENTER]: ASK CARD | [E]: ENOUGH CARDS";
-                    break;
-                //case UpdateScreenOptions.EnoughCards:
-                //    output += "OPTIONS: [ENTER]: NEXT TURN";
-                //    break;
-                case UpdateScreenOptions.EndOfRound:
-                    output += "OPTIONS: [N] or [ENTER]: NEXT ROUND | [R]: RESTART GAME | [X]: EXIT GAME";
-                    break;
-                default:
-                    break;
-            }
-
-            Console.WriteLine(output);
-        }
-
-        public void MakeComputerDecision()
-        {
-            foreach (Player player in players)
-            {
-                if (player.Type == PlayerType.Computer)
-                {
-                    player.MakeDecision();
-                }
+                    continue;
             }
         }
 
-        public static UserResponse ValidateUserInput(string parameter, UpdateScreenOptions options)
+        public void UpdateStatistics()
         {
-            string p = parameter.ToLower();
-            p.Trim();
-
-            UserResponse userResponse = new UserResponse(true);
-
-            switch (parameter)
-            {
-                case "":
-                    if (options == UpdateScreenOptions.InGame) userResponse = new UserResponse(true, false, false, false);
-                    if (options == UpdateScreenOptions.EndOfRound) userResponse = new UserResponse(false, false, false, true);
-                    break;
-                case "a":
-                    if (options == UpdateScreenOptions.InGame) userResponse = new UserResponse(true, false, false, false);
-                    else userResponse = new UserResponse(true);
-                    break;
-                case "e":
-                    if (options == UpdateScreenOptions.InGame) userResponse = new UserResponse(false, false, false, false);
-                    else userResponse = new UserResponse(true);
-                    break;
-                case "r":
-                    if (options == UpdateScreenOptions.EndOfRound) userResponse = new UserResponse(false, true, false, false);
-                    else userResponse = new UserResponse(true);
-                    break;
-                case "x":
-                    if (options == UpdateScreenOptions.EndOfRound) userResponse = new UserResponse(false, false, true, false);
-                    else userResponse = new UserResponse(true);
-                    break;
-                case "n":
-                    if (options == UpdateScreenOptions.EndOfRound) userResponse = new UserResponse(false, false, false, true);
-                    else userResponse = new UserResponse(true);
-                    break;
-                default:
-                    userResponse = new UserResponse(true);
-                    break;
-            }
-
-            return userResponse;
+            if (tie)
+                numberOfTies++;
+            else if (winner == null)
+                numberOfBothLost++;
+            else if (winner is PlayerUser)
+                playerPoints++;
+            else
+                computerPoints++;
         }
 
-        public void PlayUser(UserResponse response)
+        private void UpdateScreen()
         {
-            if (response.IsAskingForCard)
-                foreach (Player player in players)
-                {
-                    if (player.Type == PlayerType.User && !player.IsFullHand)
-                    {
-                        player.Hand.Add(stock.Deal());
-                    }
-                }
+            screenRenderer.GameplayScreen(roundNumber, playerPoints, computerPoints, numberOfTies, numberOfBothLost, players[0].Hand, players[0].Score, players[1].Hand, players[1].Score);
+        }
 
-            if (!response.IsAskingForCard)
+        private void DealInitialCards()
+        {
+            foreach (Player player in players)
             {
+                player.Hand.Add(deck.Deal());
+                player.Hand.Add(deck.Deal());
+            }
+        }
 
-                foreach (Player player in players)
+        private void DealOneCard(Player player)
+        {
+            player.Hand.Add(deck.Deal());
+        }
+
+        private bool StopDealingToEverybody()
+        {
+            bool stopDealing = true;
+
+            foreach (Player player in players)
+            {
+                if (!player.StopDeal)
                 {
-                    if (player.Type == PlayerType.User)
-                    {
-                        player.Ready = true;
-                    }
+                    stopDealing = false;
+                    break;
                 }
             }
 
-
+            return stopDealing;
         }
-
-        public void PlayComputer()
-        {
-            foreach (Player player in players)
-            {
-                if (player.Type == PlayerType.Computer)
-                {
-                    if (player.IsAnotherCardNeeded)
-                        player.Hand.Add(stock.Deal());
-                }
-            }
-        }
-
-        public bool ContinueRound()
-        {
-            foreach (Player player in players)
-            {
-                if (!player.IsFullHand)
-                    return true;
-            }
-            return false;
-        }
-
-        private Deck GetNewDeck()
-        {
-            return new Deck(random);
-        }
-
-        public void GetWinner()
-        {
-            int maxPoints = 0;
-            winners = new List<Player>();
-
-            foreach (Player player in players)
-            {
-                if (player.Points == maxPoints)
-                    winners.Add(player);
-                if (player.Points > maxPoints && player.Points < 22)
-                {
-                    maxPoints = player.Points;
-                    winners.Clear();
-                    winners.Add(player);
-                }
-            }
-
-            if (winners.Count > 1)
-            {
-                tie++;
-            }
-            if (winners.Count == 0)
-            {
-                bothLost = true;
-            }
-            if (winners.Count == 1)
-            {
-                winners[0].Score++;
-            }
-        }
-
-        public void UpdateStockIfNeeded()
-        {
-            if (stock.Cards.Count < 10)
-                stock = GetNewDeck();
-        }
-        
-
     }
 }

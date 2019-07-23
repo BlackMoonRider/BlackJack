@@ -8,17 +8,37 @@ namespace BlackJack
 {
     class Deck
     {
-        public List<Card> Cards;
-
-        public Deck(Random random)
+        private List<Card> cards;
+        public List<Card> Cards
         {
-            Cards = new List<Card>();
+            get
+            {
+                if (cards.Count < 10)
+                    CreateDeck();
+                return cards;
+            }
+            private set
+            {
+                cards = value;
+            }
+        }
+
+        public Deck()
+        {
+            CreateDeck();
+        }
+
+        private void CreateDeck()
+        {
+            List<Card> newCards = new List<Card>();
 
             for (int suit = 0; suit <= 3; suit++)
                 for (int value = 2; value <= 14; value++)
-                    Cards.Add(new Card((Value)value, (Suit)suit));
+                    newCards.Add(new Card((Value)value, (Suit)suit));
 
-            Cards = Shuffle(Cards, random);
+            newCards = Shuffle(newCards, Utility.Random);
+
+            Cards = newCards;
         }
 
         private List<Card> Shuffle(List<Card> cards, Random random)

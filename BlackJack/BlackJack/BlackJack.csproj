@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{051AFD5D-E87E-4813-80B8-43C01E38336E}</ProjectGuid>
+    <ProjectGuid>{1D069CD4-5CC7-411D-AD24-237ED72580B9}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>BlackJack</RootNamespace>
     <AssemblyName>BlackJack</AssemblyName>
@@ -43,16 +43,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Card.cs" />
-    <Compile Include="DecisionMaker.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="GameState.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="PlayerType.cs" />
+    <Compile Include="PlayerComputer.cs" />
+    <Compile Include="PlayersDecision.cs" />
+    <Compile Include="PlayerUser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScreenRenderer.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Suits.cs" />
-    <Compile Include="UpdateScreenOptions.cs" />
-    <Compile Include="UserResponse.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="Values.cs" />
   </ItemGroup>
   <ItemGroup>
